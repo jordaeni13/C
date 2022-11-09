@@ -1,6 +1,10 @@
 #include <DS3231.h>
 #include <Wire.h>
 #include <EEPROM.h>
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+
 //나의 아이디어: 0~3에 initT 저장. 4~35에 xhistory[8] 저장. x는 initT기준 0초이후, 1,2,3,4,5,6,7 초이후에 대한 x 값들을 저장해둠.
 //initT가 현재시간보다 8초 초과 차이나면, initT에 1초 더해가면서 x -1칸씩 shift, until initT == 현재시간. 
 /* (ex. 현재시간 9초, initT: 1초였다가, 현재 init 1+6까지 끌어올린 상태에서
@@ -9,7 +13,12 @@
  *  x=[0.3,0.4,0.5,0.6,0.7,0.8, 0.9, 1.0]가 됨. t++, 현재9, init+t=10. t는 9이 되고, 프로그렘종료. 이후 t=k였기에 init+k=init.
  * 
  */
-
+/*
+RF24 radio(9, 10); // CE, CSN         
+const byte address[6] = "00001";     //Byte of array representing the address. This is the address where we will send the data. This should be same on the receiving side.
+int button_pin = 2;
+boolean button_state = 0;
+*/
 RTClib myRTC;
 long int initT;
 double x[8];
@@ -17,7 +26,14 @@ int Reset = 12;
 char buf [64];
 
 
-void setup(){
+void setup() {
+  /*
+  pinMode(button_pin, INPUT);
+  radio.begin();                  //Starting the Wireless communication
+  radio.openWritingPipe(address); //Setting the address where we will send the data
+  radio.setPALevel(RF24_PA_MIN);  //You can set it as minimum or maximum depending on the distance between the transmitter and receiver.
+  radio.stopListening();          //This sets the module as transmitter
+  */
   EEPROM.get(0,initT);
   EEPROM.get(4,x);
   digitalWrite(Reset, HIGH);
@@ -55,10 +71,11 @@ void setup(){
 }
 
 void loop() {
-  DateTime now = myRTC.now();
+  DateTime now = myRTC.now(); 
   sprintf(buf, "(Main)Current time: %ld , initT: %ld \n",now.unixtime(),initT);
   Serial.println(buf);
   for(int i=1; i<101; i++){
+    //button_state = digitalRead(button_pin);
     DateTime now = myRTC.now();
     int a=now.unixtime()-initT;
     String sendval_s=String(x[a], 4);
@@ -71,6 +88,9 @@ void loop() {
     Serial.println("a is:");
     Serial.println(a);
     Serial.println("sendval is:");
+    char sendval_c[8];
+    sendval_s.toCharArray(sendval_c, sendval_s.length()+4);
+    Serial.println(sendval_c);
     Serial.println(sendval_s);
     Serial.print("\n");
     for(int t=1; t<=(a+1); t++){
