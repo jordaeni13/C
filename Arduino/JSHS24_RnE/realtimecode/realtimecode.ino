@@ -66,7 +66,7 @@ void loop() {
     for(int i=0; i<8; i++){
       Serial.println(String(x[i],6));
     }
-    Serial.println(now.unixtime());
+    Serial.println(now.unixtime());`
     Serial.println(initT);
     Serial.println("a is:");
     Serial.println(a);
