@@ -42,7 +42,6 @@ void setup() {
         Serial.println("x[i] is:");
         for(int i=0; i<8; i++){
           Serial.println(String(x[i],6));
-          Serial.println( );
         }
         Serial.print("\n");
       }
