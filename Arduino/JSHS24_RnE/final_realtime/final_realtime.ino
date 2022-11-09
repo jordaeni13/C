@@ -13,12 +13,12 @@
  *  x=[0.3,0.4,0.5,0.6,0.7,0.8, 0.9, 1.0]가 됨. t++, 현재9, init+t=10. t는 9이 되고, 프로그렘종료. 이후 t=k였기에 init+k=init.
  * 
  */
-/*
+
 RF24 radio(9, 10); // CE, CSN         
 const byte address[6] = "00001";     //Byte of array representing the address. This is the address where we will send the data. This should be same on the receiving side.
 int button_pin = 2;
 boolean button_state = 0;
-*/
+
 RTClib myRTC;
 long int initT;
 double x[8];
@@ -27,13 +27,12 @@ char buf [64];
 
 
 void setup() {
-  /*
   pinMode(button_pin, INPUT);
   radio.begin();                  //Starting the Wireless communication
   radio.openWritingPipe(address); //Setting the address where we will send the data
   radio.setPALevel(RF24_PA_MIN);  //You can set it as minimum or maximum depending on the distance between the transmitter and receiver.
   radio.stopListening();          //This sets the module as transmitter
-  */
+
   EEPROM.get(0,initT);
   EEPROM.get(4,x);
   digitalWrite(Reset, HIGH);
@@ -75,7 +74,7 @@ void loop() {
   sprintf(buf, "(Main)Current time: %ld , initT: %ld \n",now.unixtime(),initT);
   Serial.println(buf);
   for(int i=1; i<101; i++){
-    //button_state = digitalRead(button_pin);
+    button_state = digitalRead(button_pin);
     DateTime now = myRTC.now();
     int a=now.unixtime()-initT;
     String sendval_s=String(x[a], 4);
@@ -90,8 +89,8 @@ void loop() {
     Serial.println("sendval is:");
     char sendval_c[8];
     sendval_s.toCharArray(sendval_c, sendval_s.length()+4);
+    if 
     Serial.println(sendval_c);
-    Serial.println(sendval_s);
     Serial.print("\n");
     for(int t=1; t<=(a+1); t++){
       for(int i=0; i<7; i++){
